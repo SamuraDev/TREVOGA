@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта без API</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 90vh; /* Высота карты */
+            width: 100%; /* Ширина карты */
+        }
+        #alert-button {
+            position: absolute;
+            bottom: 20px; /* Отступ от низа */
+            left: 50%;
+            transform: translateX(-50%); /* Центрирование кнопки */
+            padding: 30px 40px; /* Увеличенный размер кнопки */
+            font-size: 24px; /* Увеличенный шрифт */
+            color: white;
+            background-color: red;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000; /* Обеспечивает, что кнопка будет поверх карты */
+        }
+        #alert-button:hover {
+            background-color: darkred; /* Темно-красный цвет при наведении */
+        }
+    </style>
+    <script>
+        function initMap() {
+            // Запрашиваем доступ к геолокации
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("Геолокация не поддерживается вашим браузером.");
+            }
+        }
+
+        function showPosition(position) {
+            const userLocation = [position.coords.latitude, position.coords.longitude];
+
+            const map = L.map('map').setView(userLocation, 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            const marker = L.marker(userLocation).addTo(map)
+                .bindPopup('Ваше местоположение')
+                .openPopup();
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Пользователь отклонил запрос на геолокацию.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Информация о местоположении недоступна.");
+                    break;
+                case error.TIMEOUT:
+                    alert("Запрос на геолокацию превысил лимит времени.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("Произошла неизвестная ошибка.");
+                    break;
+            }
+        }
+
+        function handleAlertButtonClick() {
+            alert("Тревога! Вы нажали на тревожную кнопку!");
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <div id="map"></div>
+    <button id="alert-button" onclick="handleAlertButtonClick()">Тревога!</button>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
